@@ -1,0 +1,11 @@
+../chat_app_server/node_modules
+../chat_app_server/.env
+
+/chat_app_server/node_modules
+/chat_app_server/.env
+
+chat_app_server/node_modules
+chat_app_server/.env
+
+node_modules
+.env

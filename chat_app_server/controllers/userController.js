@@ -1,23 +1,47 @@
 const expressAsyncHandler = require("express-async-handler");
 const User = require("../modals/userModel");
 const { generateToken } = require("../config/jwtToken");
+const { generateRefreshToken } = require("../utils/generateRefreshToken");
 
 const registerUser = expressAsyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password) {
+  const { username, fullName, email, password, gender } = req.body;
+  if (!username || !fullName || !email || !password) {
     res.status(400).json({
       message: "All necessary input fields have not been field",
     });
   }
   try {
-    const user = await User.findOne({ email });
-    if (user) {
+    const user_email = await User.findOne({ email });
+    const user_username = await User.findOne({ username });
+    if (user_email) {
       res.status(400).json({
         success: false,
         message: "User already exists",
       });
+    } else if (user_username) {
+      res.status(400).json({
+        success: false,
+        message: `${user_username.username} already taken`,
+      });
     } else {
-      const data = await User.create(req.body);
+      const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+      const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
+      const data = await User.create({
+        ...req.body,
+        profile_pic: gender === "male" ? boyProfilePic : girlProfilePic,
+      });
+      const refreshToken = generateRefreshToken(data._id);
+      await User.findByIdAndUpdate(
+        data._id,
+        {
+          refreshToken: refreshToken,
+        },
+        { new: true }
+      );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
       res.status(201).json({
         success: true,
         message: data,
@@ -25,13 +49,15 @@ const registerUser = expressAsyncHandler(async (req, res) => {
       });
     }
   } catch (err) {
-    throw new Error(err.message);
+    res.status(400).json({
+      message: err.message,
+    });
   }
 });
 
 const loginUser = expressAsyncHandler(async (req, res) => {
-  const { name, password } = req.body;
-  if (!name) {
+  const { username, password } = req.body;
+  if (!username) {
     res.status(400).json({
       success: false,
       message: "Please provide an user name",
@@ -43,7 +69,7 @@ const loginUser = expressAsyncHandler(async (req, res) => {
     });
   }
   try {
-    const user = await User.findOne({ name });
+    const user = await User.findOne({ username });
     if (!user) {
       res.status(400).json("User does not exist");
     }
@@ -53,9 +79,21 @@ const loginUser = expressAsyncHandler(async (req, res) => {
         message: "Invalid Password",
       });
     } else {
+      const refreshToken = generateRefreshToken(user._id);
+      const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        {
+          refreshToken: refreshToken,
+        },
+        { new: true }
+      );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
       res.status(200).json({
         sucess: true,
-        data: user,
+        data: updatedUser,
         token: generateToken(user._id),
       });
     }
@@ -64,20 +102,44 @@ const loginUser = expressAsyncHandler(async (req, res) => {
   }
 });
 
-const getUser = expressAsyncHandler(async (req, res) => {
+const logOut = expressAsyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+  if (!cookie?.refreshToken) {
+    throw new Error("No refresh token in cookies");
+  }
+  const refreshToken = cookie.refreshToken;
+  const user = await User.findOne({ refreshToken });
+  console.log("user----->>", user);
+  if (!user) {
+    res.clearCookie("refreshToken", { httpOnly: true, secure: true });
+    return res.status(204);
+  }
+  await User.findOneAndUpdate(
+    { refreshToken },
+    { refreshToken: "" },
+    { new: true }
+  );
+  res.clearCookie("refreshToken", { httpOnly: true, secure: true });
+  res.status(204);
+});
+
+const getUsers = expressAsyncHandler(async (req, res) => {
+  const { id } = req.user;
   try {
-    const user = await User.find({ name: "Shubh One" });
-    if (!user) {
+    const all_users = await User.find({
+      _id: { $ne: id },
+    }).select("-password");
+    if (!all_users) {
       res.status(400).json({
         message: "User does not found",
       });
     } else {
-      res.status(200).json({
-        message: user,
-      });
+      res.status(200).json(all_users);
     }
   } catch (err) {
-    throw new Error(err);
+    res.status(400).json({
+      message: err.message,
+    });
   }
 });
 
@@ -100,4 +162,4 @@ const fetchUsers = expressAsyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { registerUser, loginUser, getUser, fetchUsers };
+module.exports = { registerUser, loginUser, logOut, getUsers, fetchUsers };

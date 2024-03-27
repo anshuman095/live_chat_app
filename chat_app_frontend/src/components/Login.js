@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Formik } from "formik";
 import { userLogin } from "../redux/actions/authAction";
 import { registerUser } from "../redux/actions/registerAction";
+import GenderCheckbox from "./GenderCheckbox";
 
 export const Login = () => {
   const dispatch = useDispatch();
@@ -18,7 +19,7 @@ export const Login = () => {
   console.log("showLogin", showLogin);
   return (
     <Formik
-      initialValues={{ name: "", password: "", email: "" }}
+      initialValues={{ username: "", password: "", email: "" }}
       onSubmit={(values) => {
         if (showLogin) {
           console.log("login enter");
@@ -65,8 +66,8 @@ export const Login = () => {
                         label="Enter User Name"
                         variant="outlined"
                         color="secondary"
-                        type="name"
-                        name="name"
+                        type="username"
+                        name="username"
                         onChange={handleChange}
                         onBlur={handleBlur}
                         value={values.name}
@@ -90,7 +91,7 @@ export const Login = () => {
                         Login
                       </Button>
                       <p>
-                        Don't have an account ?{" "}
+                        Don't have an account ?
                         <span
                           className="hyper"
                           onClick={() => setShowLogin(false)}
@@ -142,6 +143,7 @@ export const Login = () => {
                         value={values.password}
                         onChange={handleChange}
                       />
+                        <GenderCheckbox />
                       <Button
                         variant="outlined"
                         color="secondary"

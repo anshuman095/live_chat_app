@@ -25,10 +25,10 @@ export const Users = () => {
         Authorization: `Bearer ${tokenRegister}`,
       },
     };
-    axios.get(`${url}/user/fetchUsers`, config).then((data) => {
-      console.log("data.data", data.data.data[0]);
-      setUsers(data?.data?.data);
-    });
+    // axios.get(`${url}/user/fetchUsers`, config).then((data) => {
+    //   console.log("data.data", data.data.data[0]);
+    //   setUsers(data?.data?.data);
+    // });
   }, [refresh]);
 
   return (

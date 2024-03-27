@@ -1,11 +1,11 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-const url = "http://192.168.1.3:4001/api";
+const url = "http://192.168.1.4:4001/api";
 
 export const registerUser = createAsyncThunk(
   "/auth/registerUser",
-  async ({ name, email, password }, { rejectWithValue }) => {
+  async ({ username, email, password }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -14,7 +14,7 @@ export const registerUser = createAsyncThunk(
       };
       const { data } = await axios.post(
         `${url}/user/registerUser`,
-        { name, email, password },
+        { username, email, password },
         config
       );
       return data;

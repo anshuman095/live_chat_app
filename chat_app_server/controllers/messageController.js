@@ -1,55 +1,58 @@
 const expressAsyncHandler = require("express-async-handler");
 const Message = require("../modals/messageModel");
-const User = require("../modals/userModel");
-const Chat = require("../modals/chatModel");
-
-const allMessages = expressAsyncHandler(async (req, res) => {
-  const { chatId } = req.params;
-  try {
-    const messages = await Message.find({ chat: chatId })
-      .populate("sender", "name email")
-      .populate("reciever")
-      .populate("chat");
-    res.json(messages);
-  } catch (error) {
-    res.status(400);
-    throw new Error(error.message);
-  }
-});
+const Conversation = require("../modals/conversationModel");
 
 const sendMessage = expressAsyncHandler(async (req, res) => {
-  const { content, chatId } = req.body;
-  const { _id } = req.user;
-
-  if (!content || !chatId) {
-    console.log("Invalid data passed into request");
-    return res.sendStatus(400);
-  }
-
-  var newMessage = {
-    sender: _id,
-    content: content,
-    chat: chatId,
-  };
+  const { message } = req.body;
+  const { receiverId } = req.params;
+  const senderId = req.user.id;
 
   try {
-    var message = await Message.create(newMessage);
-
-    console.log(message);
-    message = await message.populate("sender", "name pic");
-    message = await message.populate("chat");
-    message = await message.populate("reciever");
-    message = await User.populate(message, {
-      path: "chat.users",
-      select: "name email",
+    let conversation = await Conversation.findOne({
+      participants: { $all: [senderId, receiverId] },
     });
-
-    await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
-    res.json(message);
-  } catch (error) {
-    res.status(400);
-    throw new Error(error.message);
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [senderId, receiverId],
+      });
+    }
+    let newMessage = new Message({
+      senderId,
+      receiverId,
+      message,
+    });
+    if (newMessage) {
+      conversation.messagesId.push(newMessage._id);
+    }
+    await Promise.all([conversation.save(), newMessage.save()]);
+    res.status(201).json(newMessage);
+  } catch (err) {
+    res.status(400).json({
+      message: err.message,
+    });
   }
 });
 
-module.exports = { allMessages, sendMessage };
+const getMessage = expressAsyncHandler(async (req, res) => {
+  const { userToChatId } = req.params;
+  const logginUserId = req.user.id;
+  try {
+    const conversation = await Conversation.findOne({
+      participants: { $all: [logginUserId, userToChatId] },
+    })
+      .select("messagesId -_id")
+      .populate("messagesId");
+    console.log("conversation in getMessage--------->>>>>>>>>>", conversation);
+    if (!conversation) {
+      res.status(200).json([]);
+    } else {
+      res.status(200).json(conversation.messagesId);
+    }
+  } catch (err) {
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+});
+
+module.exports = { sendMessage, getMessage };

@@ -294,6 +294,21 @@
   gap: 20px;
 }
 
+.gender-container {
+  display: flex;
+  justify-content: space-between;
+  margin-left: -90px;
+}
+
+.gender-container label {
+  display: flex;
+  align-items: center;
+}
+
+.gender-container input[type="checkbox"] {
+  margin-right: 5px;
+}
+
 .list-container {
   flex: 0.7;
   background-color: #63d7b0;

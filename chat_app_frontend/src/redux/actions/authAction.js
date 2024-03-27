@@ -1,11 +1,11 @@
 import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-const url = "http://192.168.1.3:4001/api";
+const url = "http://192.168.1.4:4001/api";
 
 export const userLogin = createAsyncThunk(
   "/auth/userLogin",
-  async ({ name, password }, { rejectWithValue }) => {
+  async ({ username, password }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
@@ -14,7 +14,7 @@ export const userLogin = createAsyncThunk(
       };
       const { data } = await axios.post(
         `${url}/user/loginUser`,
-        { name, password },
+        { username, password },
         config
       );
       // localStorage.setItem("token", data.token);

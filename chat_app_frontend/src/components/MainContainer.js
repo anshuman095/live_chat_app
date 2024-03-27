@@ -1,7 +1,7 @@
 import "./style.css";
 import { Sidebar } from "./Sidebar";
 import { Outlet } from "react-router-dom";
-// import { ChatArea } from "./ChatArea";
+import { ChatArea } from "./ChatArea";
 // import { Users } from "./Users";
 // import { Groups } from "./Groups";
 // import Welcome from "./Welcome";

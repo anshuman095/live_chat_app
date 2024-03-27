@@ -34,10 +34,10 @@ export const Sidebar = () => {
         Authorization: `Bearer ${tokenRegister}`,
       },
     };
-    axios.get(`${url}/chat/fetchChats`, config).then((response) => {
-      console.log("Data refresh in sidebar ", response.data[0]);
-      setConversations(response.data);
-    });
+    // axios.get(`${url}/chat/fetchChats`, config).then((response) => {
+    //   console.log("Data refresh in sidebar ", response.data[0]);
+    //   setConversations(response.data);
+    // });
   }, []);
 
   const navigate = useNavigate();

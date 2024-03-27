@@ -17,7 +17,9 @@ const authMiddleware = expressAsyncHandler(async (req, res, next) => {
       throw new Error("Not authorized token expired, Please Login again");
     }
   } else {
-    throw new Error("There is no token attached to header");
+    res.status(400).json({
+      message: "There is no token attached to header",
+    });
   }
 });
 
