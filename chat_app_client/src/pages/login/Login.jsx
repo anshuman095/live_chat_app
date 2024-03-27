@@ -1,7 +1,13 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { userLogin } from "../../redux/actions/authAction";
 
 const Login = () => {
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center justify-center min-w-96 mx-auto">
       <div className="w-full p-6 rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0">
@@ -26,6 +32,8 @@ const Login = () => {
           }}
           onSubmit={(values) => {
             console.log("values", values);
+            dispatch(userLogin(values));
+            navigate("/");
           }}
         >
           {() => (

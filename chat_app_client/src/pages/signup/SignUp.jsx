@@ -1,8 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import GenderCheckbox from "./GenderCheckbox";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { registerUser } from "../../redux/actions/registerAction";
+import { useDispatch } from "react-redux";
 
 const SignUp = () => {
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center justify-center min-w-96 mx-auto">
       <div className="w-full p-6 rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0">
@@ -35,6 +41,8 @@ const SignUp = () => {
           }}
           onSubmit={(values) => {
             console.log("values", values);
+            dispatch(registerUser(values));
+            navigate("/");
           }}
         >
           {() => (

@@ -22,7 +22,6 @@ export const Login = () => {
       initialValues={{ username: "", password: "", email: "" }}
       onSubmit={(values) => {
         if (showLogin) {
-          console.log("login enter");
           dispatch(userLogin(values));
           navigate("/app/welcome");
         } else {
