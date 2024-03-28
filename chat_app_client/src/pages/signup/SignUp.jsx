@@ -1,12 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
 import GenderCheckbox from "./GenderCheckbox";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../redux/actions/registerAction";
-import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import { resetUserInfo } from "../../redux/features/auth/authSlice";
+import { getAllUsers } from "../../redux/actions/authAction";
 
 const SignUp = () => {
+  const signUpUserData = useSelector((state) => state.register);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
   return (
@@ -18,18 +21,22 @@ const SignUp = () => {
 
         <Formik
           initialValues={{
-            fullName: "",
             username: "",
+            fullName: "",
+            email: "",
             password: "",
             gender: "",
           }}
           validate={(values) => {
             const errors = {};
+            if (!values.username) {
+              errors.username = "Required!";
+            }
             if (!values.fullName) {
               errors.fullName = "Required!";
             }
-            if (!values.username) {
-              errors.username = "Required!";
+            if (!values.email) {
+              errors.email = "Required!";
             }
             if (!values.password) {
               errors.password = "Required!";
@@ -39,14 +46,44 @@ const SignUp = () => {
             }
             return errors;
           }}
-          onSubmit={(values) => {
-            console.log("values", values);
-            dispatch(registerUser(values));
-            navigate("/");
+          onSubmit={async (values, { setSubmitting }) => {
+            try {
+              dispatch(resetUserInfo());
+              const data = await dispatch(registerUser(values));
+              if (data.payload.success === true) {
+                const token = data.payload.token;
+                await dispatch(getAllUsers(token));
+                toast.success("Registration successful!");
+                navigate("/");
+              } else {
+                toast.error(data.payload || "Registration failed!");
+              }
+            } catch (error) {
+              toast.error(error || "Registration failed!");
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
           {() => (
             <Form>
+              <div>
+                <label className="label p-2 ">
+                  <span className="text-base label-text">Username</span>
+                </label>
+                <Field
+                  type="text"
+                  placeholder="johndoe"
+                  className="w-full input input-bordered h-10"
+                  name="username"
+                />
+                <ErrorMessage
+                  className="text-red-700"
+                  name="username"
+                  component="div"
+                />
+              </div>
+
               <div>
                 <label className="label p-2">
                   <span className="text-base label-text">Full Name</span>
@@ -65,18 +102,18 @@ const SignUp = () => {
               </div>
 
               <div>
-                <label className="label p-2 ">
-                  <span className="text-base label-text">Username</span>
+                <label className="label p-2">
+                  <span className="text-base label-text">Email</span>
                 </label>
                 <Field
-                  type="text"
-                  placeholder="johndoe"
-                  className="w-full input input-bordered h-10"
-                  name="username"
+                  type="email"
+                  mailto:placeholder="johndoe@gmail.com"
+                  className="w-full input input-bordered  h-10"
+                  name="email"
                 />
                 <ErrorMessage
                   className="text-red-700"
-                  name="username"
+                  name="email"
                   component="div"
                 />
               </div>
@@ -112,7 +149,7 @@ const SignUp = () => {
                   className="btn btn-block btn-sm mt-2 border border-slate-700"
                   type="submit"
                 >
-                  Sign Up
+                  {signUpUserData.loading ? <span className="loading loading-spinner"></span> : "Sign Up"}
                 </button>
               </div>
             </Form>

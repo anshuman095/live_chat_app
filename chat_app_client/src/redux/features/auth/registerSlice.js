@@ -11,7 +11,11 @@ const initialState = {
 const registerSlice = createSlice({
   name: "register",
   initialState,
-  reducers: {},
+  reducers: {
+    resetUserLoginInfo: (state) => {
+      state.userInfo = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
@@ -22,8 +26,6 @@ const registerSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.userInfo = payload?.success ? payload.message : null;
-        localStorage.setItem("userData", JSON.stringify(payload?.message));
-        localStorage.setItem("tokenRegister", JSON.stringify(payload?.token));
       })
       .addCase(registerUser.rejected, (state, { payload }) => {
         state.loading = false;
@@ -31,5 +33,8 @@ const registerSlice = createSlice({
       });
   },
 });
+
+export const { resetUserLoginInfo } = registerSlice.actions;
+
 
 export default registerSlice.reducer;

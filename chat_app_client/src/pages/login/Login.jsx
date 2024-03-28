@@ -1,11 +1,14 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { userLogin } from "../../redux/actions/authAction";
+import { getAllUsers, userLogin } from "../../redux/actions/authAction";
+import { resetUserLoginInfo } from "../../redux/features/auth/registerSlice";
 
 const Login = () => {
-  const dispatch = useDispatch();
+  const loginUserData = useSelector((state) => state.auth);
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   return (
@@ -30,10 +33,23 @@ const Login = () => {
             }
             return errors;
           }}
-          onSubmit={(values) => {
-            console.log("values", values);
-            dispatch(userLogin(values));
-            navigate("/");
+          onSubmit={async (values, { setSubmitting }) => {
+            try {
+              dispatch(resetUserLoginInfo());
+              const data = await dispatch(userLogin(values))
+              if (data.payload.sucess === true) {
+                const token = data.payload.token;
+                await dispatch(getAllUsers(token));
+                toast.success("Login successful!");
+                navigate("/");
+              } else {
+                toast.error(data.payload || "Login failed!");
+              }
+            } catch (error) {
+              toast.error(error || "Login failed!");
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
           {() => (
@@ -80,7 +96,7 @@ const Login = () => {
 
               <div>
                 <button className="btn btn-block btn-sm mt-2" type="submit">
-                  Login
+                  {loginUserData.loading ? <span className="loading loading-spinner"></span> : "Login"}
                 </button>
               </div>
             </Form>
