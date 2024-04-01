@@ -4,7 +4,10 @@ import { Base_Url } from "../../utils/api";
 
 export const registerUser = createAsyncThunk(
   "/auth/registerUser",
-  async ({ username, fullName, email, password, gender }, { rejectWithValue }) => {
+  async (
+    { username, fullName, email, password, gender },
+    { rejectWithValue }
+  ) => {
     try {
       const config = {
         headers: {
@@ -20,7 +23,7 @@ export const registerUser = createAsyncThunk(
     } catch (error) {
       if (error.response && error.response?.data?.message) {
         return rejectWithValue(error.response?.data?.message);
-      } else {  
+      } else {
         return rejectWithValue(error.message);
       }
     }

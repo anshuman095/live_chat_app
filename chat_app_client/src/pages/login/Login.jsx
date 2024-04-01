@@ -4,9 +4,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllUsers, userLogin } from "../../redux/actions/authAction";
 import { resetUserLoginInfo } from "../../redux/features/auth/registerSlice";
+import { setSelectedUserInfo } from "../../redux/features/auth/authSlice";
 
 const Login = () => {
-  const loginUserData = useSelector((state) => state.auth);
+  const loginUserData = useSelector((state) => state?.auth);
+  const socketData = useSelector((state) => state?.socket);
+  console.log("socketData in login compo", socketData);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -36,10 +39,11 @@ const Login = () => {
           onSubmit={async (values, { setSubmitting }) => {
             try {
               dispatch(resetUserLoginInfo());
-              const data = await dispatch(userLogin(values))
+              const data = await dispatch(userLogin(values));
               if (data.payload.sucess === true) {
                 const token = data.payload.token;
                 await dispatch(getAllUsers(token));
+                await dispatch(setSelectedUserInfo(null));
                 toast.success("Login successful!");
                 navigate("/");
               } else {
@@ -56,7 +60,9 @@ const Login = () => {
             <Form>
               <div>
                 <label className="label p-2">
-                  <span className="text-base label-text">Username</span>
+                  <span className="text-base label-text text-gray-200">
+                    Username
+                  </span>
                 </label>
                 <Field
                   type="text"
@@ -73,7 +79,9 @@ const Login = () => {
 
               <div>
                 <label className="label">
-                  <span className="text-base label-text">Password</span>
+                  <span className="text-base label-text text-gray-200">
+                    Password
+                  </span>
                 </label>
                 <Field
                   type="password"
@@ -89,14 +97,18 @@ const Login = () => {
               </div>
               <Link
                 to="/signup"
-                className="text-sm  hover:underline hover:text-blue-600 mt-2 inline-block"
+                className="text-sm  hover:underline hover:text-blue-600 mt-2 inline-block text-gray-200"
               >
                 {"Don't"} have an account?
               </Link>
 
               <div>
                 <button className="btn btn-block btn-sm mt-2" type="submit">
-                  {loginUserData.loading ? <span className="loading loading-spinner"></span> : "Login"}
+                  {loginUserData.loading ? (
+                    <span className="loading loading-spinner"></span>
+                  ) : (
+                    "Login"
+                  )}
                 </button>
               </div>
             </Form>

@@ -2,19 +2,40 @@ import { TiMessages } from "react-icons/ti";
 import MessageInput from "./MessageInput";
 import Messages from "./Messages";
 import { useSelector } from "react-redux";
+import CallIcon from "@mui/icons-material/Call";
+import VideoCallIcon from "@mui/icons-material/VideoCall";
+import { IconButton } from "@mui/material";
 
 const MessageContainer = () => {
-  const noChatSelected = false;
+  const selectedUserData = useSelector((state) => state?.auth?.selectedUser);
+
   return (
     <div className="md:min-w-[450px] flex flex-col">
-      {noChatSelected ? (
+      {Object.keys(selectedUserData || {})?.length === 0 ? (
         <NoChatSelected />
       ) : (
         <>
-          {/* <Header /> */}
-          <div className="bg-slate-500 px-4 py-2 mb-2">
-            <span className="label-text">To:</span>
-            <span className="text-gray-900 font-bold">John doe</span>
+          <div className="bg-slate-500 px-4 py-2 mb-2 mx-1 my-1 flex rounded-md">
+            <span className="label-text">
+              <img
+                className="w-10 rounded-full"
+                src={selectedUserData.profile_pic}
+                alt="user avatar"
+              />
+            </span>
+            <span className="text-white font-bold m-2">
+              {selectedUserData?.fullName || ""}
+            </span>
+            <span style={{ position: "absolute", top: 10, right: 55 }}>
+              <IconButton>
+                <CallIcon style={{ color: "white" }} />
+              </IconButton>
+            </span>
+            <span style={{ position: "absolute", top: 10, right: 16 }}>
+              <IconButton>
+                <VideoCallIcon style={{ color: "white" }} />
+              </IconButton>
+            </span>
           </div>
 
           <Messages />

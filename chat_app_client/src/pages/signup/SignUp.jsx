@@ -4,7 +4,10 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../redux/actions/registerAction";
 import toast from "react-hot-toast";
-import { resetUserInfo } from "../../redux/features/auth/authSlice";
+import {
+  resetUserInfo,
+  setSelectedUserInfo,
+} from "../../redux/features/auth/authSlice";
 import { getAllUsers } from "../../redux/actions/authAction";
 
 const SignUp = () => {
@@ -53,6 +56,7 @@ const SignUp = () => {
               if (data.payload.success === true) {
                 const token = data.payload.token;
                 await dispatch(getAllUsers(token));
+                await dispatch(setSelectedUserInfo(null));
                 toast.success("Registration successful!");
                 navigate("/");
               } else {
@@ -69,11 +73,13 @@ const SignUp = () => {
             <Form>
               <div>
                 <label className="label p-2 ">
-                  <span className="text-base label-text">Username</span>
+                  <span className="text-base label-text text-gray-200">
+                    Username
+                  </span>
                 </label>
                 <Field
                   type="text"
-                  placeholder="johndoe"
+                  placeholder="Enter username"
                   className="w-full input input-bordered h-10"
                   name="username"
                 />
@@ -86,7 +92,9 @@ const SignUp = () => {
 
               <div>
                 <label className="label p-2">
-                  <span className="text-base label-text">Full Name</span>
+                  <span className="text-base label-text text-gray-200">
+                    Full Name
+                  </span>
                 </label>
                 <Field
                   type="text"
@@ -103,11 +111,13 @@ const SignUp = () => {
 
               <div>
                 <label className="label p-2">
-                  <span className="text-base label-text">Email</span>
+                  <span className="text-base label-text text-gray-200">
+                    Email
+                  </span>
                 </label>
                 <Field
                   type="email"
-                  mailto:placeholder="johndoe@gmail.com"
+                  placeholder="johndoe@gmail.com"
                   className="w-full input input-bordered  h-10"
                   name="email"
                 />
@@ -120,7 +130,9 @@ const SignUp = () => {
 
               <div>
                 <label className="label">
-                  <span className="text-base label-text">Password</span>
+                  <span className="text-base label-text text-gray-200">
+                    Password
+                  </span>
                 </label>
                 <Field
                   type="password"
@@ -138,7 +150,7 @@ const SignUp = () => {
               <GenderCheckbox />
 
               <Link
-                className="text-sm hover:underline hover:text-blue-600 mt-2 inline-block"
+                className="text-sm text-gray-200 hover:underline hover:text-blue-600 mt-2 inline-block"
                 to="/login"
               >
                 Already have an account?
@@ -149,7 +161,11 @@ const SignUp = () => {
                   className="btn btn-block btn-sm mt-2 border border-slate-700"
                   type="submit"
                 >
-                  {signUpUserData.loading ? <span className="loading loading-spinner"></span> : "Sign Up"}
+                  {signUpUserData.loading ? (
+                    <span className="loading loading-spinner"></span>
+                  ) : (
+                    "Sign Up"
+                  )}
                 </button>
               </div>
             </Form>

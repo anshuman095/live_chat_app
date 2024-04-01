@@ -36,5 +36,4 @@ const registerSlice = createSlice({
 
 export const { resetUserLoginInfo } = registerSlice.actions;
 
-
 export default registerSlice.reducer;

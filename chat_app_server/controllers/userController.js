@@ -143,6 +143,81 @@ const getUsers = expressAsyncHandler(async (req, res) => {
   }
 });
 
+const blockUser = expressAsyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const id = req.params.id;
+  try {
+    const user = await User.findById(_id);
+    if (!user) {
+      throw new Error("Something went wrong");
+    }
+    const userToBlock = await User.findById(id);
+    if (!userToBlock) {
+      throw new Error("User does not exist");
+    }
+    const isUserBlockedAlready = user.blockedUsers.includes(id);
+
+    const isUserBlockedBy = userToBlock.blockedBy.includes(_id);
+
+    if (isUserBlockedAlready) {
+      user.blockedUsers = user.blockedUsers.filter(
+        (blockedUserId) => blockedUserId.toString() !== id
+      );
+    }
+
+    if (isUserBlockedBy) {
+      userToBlock.blockedBy = userToBlock.blockedBy.filter((blockedById) => {
+        blockedById.toString() !== _id;
+      });
+    }
+
+    user.blockedUsers.push(id);
+    userToBlock.blockedBy.push(_id);
+
+    await user.save();
+    await userToBlock.save();
+    res.status(200).json({
+      message: "User Blcoked Successfully",
+    });
+  } catch (err) {
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+});
+
+const unBlockUser = expressAsyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const id = req.params.id;
+  try {
+    const userExist = await User.findById(_id);
+    if (!userExist) {
+      throw new Error("Something went wrong");
+    }
+    const userToUnBlock = await User.findById(id);
+    if (!userToUnBlock) {
+      throw new Error("User does not exist");
+    }
+    await User.findByIdAndUpdate(
+      _id,
+      { $pull: { blockedUsers: id } },
+      { new: true }
+    );
+    await User.findByIdAndUpdate(
+      id,
+      { $pull: { blockedBy: _id } },
+      { new: true }
+    );
+    res.status(200).json({
+      message: "User Unblocked Successfully",
+    });
+  } catch (err) {
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+});
+
 const fetchUsers = expressAsyncHandler(async (req, res) => {
   const keyword = req.query.search
     ? {
@@ -152,7 +227,6 @@ const fetchUsers = expressAsyncHandler(async (req, res) => {
         ],
       }
     : {};
-  console.log("keyword", keyword);
 
   const users = await User.find(keyword).find({
     _id: { $ne: req.user._id },
@@ -162,4 +236,12 @@ const fetchUsers = expressAsyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { registerUser, loginUser, logOut, getUsers, fetchUsers };
+module.exports = {
+  registerUser,
+  loginUser,
+  logOut,
+  getUsers,
+  blockUser,
+  unBlockUser,
+  fetchUsers,
+};

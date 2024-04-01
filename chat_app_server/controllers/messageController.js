@@ -42,7 +42,6 @@ const getMessage = expressAsyncHandler(async (req, res) => {
     })
       .select("messagesId -_id")
       .populate("messagesId");
-    console.log("conversation in getMessage--------->>>>>>>>>>", conversation);
     if (!conversation) {
       res.status(200).json([]);
     } else {

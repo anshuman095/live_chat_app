@@ -27,6 +27,21 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #242424;
 }
+.sidebar-pane {
+  position: absolute;
+  top: 90px;
+  left: 405px;
+  height: 550px;
+  color: gray;
+}
+
+.sidebar-overlay {
+  z-index: 999; /* Ensure overlay is above other content */
+}
+
+.profile-pic-container {
+  /* height: 50px; */
+}
 
 /* SHAKE ANIMATION ON HORIZONTAL DIRECTION  */
 .shake {

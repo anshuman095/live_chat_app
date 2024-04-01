@@ -5,7 +5,7 @@ const GenderCheckbox = () => {
     <div className="flex">
       <div className="form-control">
         <label className={`label gap-2 cursor-pointer`}>
-          <span className="label-text">Male</span>
+          <span className="label-text text-gray-200">Male</span>
           <Field
             type="radio"
             name="gender"
@@ -21,7 +21,7 @@ const GenderCheckbox = () => {
       </div>
       <div className="form-control">
         <label className={`label gap-2 cursor-pointer`}>
-          <span className="label-text">Female</span>
+          <span className="label-text text-gray-200">Female</span>
           <Field
             type="radio"
             name="gender"
